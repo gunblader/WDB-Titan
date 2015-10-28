@@ -106,7 +106,7 @@ public class SleepyCatDataBase {
 	    cursor.close();
 	}
 	
-	public SecondaryDatabase openSecDb(IndexDef index) throws Exception
+	public void openSecDb(IndexDef index) throws Exception
 	{
 		this.secDbConfig = new SecondaryConfig();
 		this.secDbConfig.setTransactional(true);
@@ -118,7 +118,7 @@ public class SleepyCatDataBase {
 		
 		SecondaryDatabase secDb = this.env.openSecondaryDatabase(null, index.name, this.objectDb, this.secDbConfig);
 		this.secDbs.put(index.name, secDb);
-		return secDb;
+		//return secDb;
 	}
 	
 	public DatabaseAdapter newTransaction() throws Exception
