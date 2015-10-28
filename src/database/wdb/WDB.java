@@ -162,7 +162,7 @@ public class WDB {
 			
 			try
 			{
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				
 				try
 				{
@@ -213,7 +213,7 @@ public class WDB {
 			ModifyQuery mq = (ModifyQuery)q;
 			try
 			{
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				
 				try
 				{
@@ -247,7 +247,7 @@ public class WDB {
 			
 			try
 			{
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				
 				try
 				{
@@ -316,7 +316,7 @@ public class WDB {
 			
 			try
 			{
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				try
 				{
 					ClassDef classDef = da.getClass(indexQ.className);
@@ -346,7 +346,7 @@ public class WDB {
 			{
 
 				
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				try
 				{
 					ClassDef targetClass = da.getClass(rq.className);
@@ -483,7 +483,7 @@ public class WDB {
 		}
 	}
 	
-	private static void setDefaultValues(ClassDef targetClass, WDBObject targetObject, SleepyCatDataAdapter scda) throws Exception
+	private static void setDefaultValues(ClassDef targetClass, WDBObject targetObject, DatabaseAdapter scda) throws Exception
 	{
 		for(int j = 0; j < targetClass.numberOfAttributes(); j++)
 		{
@@ -497,7 +497,7 @@ public class WDB {
 			}
 		}
 	}
-	private static void checkRequiredValues(ClassDef targetClass, WDBObject targetObject, SleepyCatDataAdapter scda) throws Exception
+	private static void checkRequiredValues(ClassDef targetClass, WDBObject targetObject, DatabaseAdapter scda) throws Exception
 	{
 		for(int j = 0; j < targetClass.numberOfAttributes(); j++)
 		{
@@ -508,7 +508,7 @@ public class WDB {
 			}
 		}
 	}
-	private static void setValues(ArrayList assignmentList, WDBObject targetObject, SleepyCatDataAdapter scda) throws Exception
+	private static void setValues(ArrayList assignmentList, WDBObject targetObject, DatabaseAdapter scda) throws Exception
 	{
 		for(int j = 0; j < assignmentList.size(); j++)
 		{

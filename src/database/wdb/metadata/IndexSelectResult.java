@@ -1,5 +1,6 @@
 package wdb.metadata;
 
+import wdb.DatabaseAdapter;
 import wdb.SleepyCatDataAdapter;
 import wdb.metadata.*;
 import java.util.Hashtable;
@@ -17,7 +18,7 @@ public class IndexSelectResult {
 	{
 		this.andDvaList = new Hashtable<String, Object>();
 	}
-	public WDBObject[] getFilteredResults(SleepyCatDataAdapter scda, ArrayList indexes) throws Exception
+	public WDBObject[] getFilteredResults(DatabaseAdapter scda, ArrayList indexes) throws Exception
 	{
 		this.doDelayedAnd(scda, indexes);
 		if(filteredList != null)
@@ -110,7 +111,7 @@ public class IndexSelectResult {
 
 		return this.filteredList;
 	}
-	public void doDelayedAnd(SleepyCatDataAdapter scda, ArrayList indexes) throws Exception
+	public void doDelayedAnd(DatabaseAdapter scda, ArrayList indexes) throws Exception
 	{
 		if(andDvaList.isEmpty())
 		{

@@ -6,7 +6,7 @@
  */
 package wdb.metadata;
 
-import wdb.SleepyCatDataAdapter;
+import wdb.DatabaseAdapter;
 import wdb.parser.*;
 
 import java.io.Serializable;
@@ -47,7 +47,7 @@ public class WDBObject implements Serializable {
 		
 		return false;
 	}
-	public WDBObject getBaseObject(SleepyCatDataAdapter scda) throws Exception
+	public WDBObject getBaseObject(DatabaseAdapter scda) throws Exception
 	{
 		ClassDef myClass = this.getClassDef(scda);
 		//See if its parent of this class
@@ -78,7 +78,7 @@ public class WDBObject implements Serializable {
 			return null;
 		}
 	}
-	public WDBObject getParentObject(String superClassName, SleepyCatDataAdapter scda) throws Exception
+	public WDBObject getParentObject(String superClassName, DatabaseAdapter scda) throws Exception
 	{	
 		ClassDef myClass = this.getClassDef(scda);
 		//See if its parent of this class
@@ -138,7 +138,7 @@ public class WDBObject implements Serializable {
 		}
 	}
 	
-	public WDBObject getChildObject(String subClassName, SleepyCatDataAdapter scda) throws Exception
+	public WDBObject getChildObject(String subClassName, DatabaseAdapter scda) throws Exception
 	{
 		//See if its one of my immediate subclasses.
 		if(children.containsKey(subClassName))
@@ -165,11 +165,11 @@ public class WDBObject implements Serializable {
 	{
 		this.children.remove(subclassName);
 	}
-	public void commit(SleepyCatDataAdapter scda) throws Exception
+	public void commit(DatabaseAdapter scda) throws Exception
 	{
 		scda.putObject(this);
 	}
-	public ClassDef getClassDef(SleepyCatDataAdapter scda) throws Exception
+	public ClassDef getClassDef(DatabaseAdapter scda) throws Exception
 	{
 		return scda.getClass(this.classDefName);
 	}
@@ -178,7 +178,7 @@ public class WDBObject implements Serializable {
 	{
 		return this.dvaValues.get(dvaName);
 	}
-	public Object getDvaValue(String dvaName, SleepyCatDataAdapter scda) throws Exception
+	public Object getDvaValue(String dvaName, DatabaseAdapter scda) throws Exception
 	{
 		Object value = null;
 		
@@ -226,7 +226,7 @@ public class WDBObject implements Serializable {
 		return value;
 	}
 	
-	public void setDvaValue(String dvaName, Object value, SleepyCatDataAdapter scda) throws Exception
+	public void setDvaValue(String dvaName, Object value, DatabaseAdapter scda) throws Exception
 	{	
 		//See if its immediate in this class
 		ClassDef myClass = this.getClassDef(scda);
@@ -287,7 +287,7 @@ public class WDBObject implements Serializable {
 		this.commit(scda);
 	}
 	
-	public void addEvaObjects(String evaName, String targetClass, SimpleNode expression, SleepyCatDataAdapter scda) throws Exception
+	public void addEvaObjects(String evaName, String targetClass, SimpleNode expression, DatabaseAdapter scda) throws Exception
 	{
 		ClassDef myClass = this.getClassDef(scda);
 		Attribute myAttribute = myClass.getAttribute(evaName);
@@ -372,14 +372,14 @@ public class WDBObject implements Serializable {
 		this.commit(scda);
 	}
 	
-	public void removeEvaObjects(String evaName, String targetClass, SimpleNode expression, SleepyCatDataAdapter scda) throws Exception
+	public void removeEvaObjects(String evaName, String targetClass, SimpleNode expression, DatabaseAdapter scda) throws Exception
 	{
 		ClassDef targetClassDef = scda.getClass(targetClass);
 		WDBObject[] matchingObjs = targetClassDef.search(expression, scda);
 		removeEvaObjects(evaName, targetClass, matchingObjs, scda);
 	}
 	
-	public void removeEvaObjects(String evaName, String targetClass, WDBObject[] targetObjects, SleepyCatDataAdapter scda) throws Exception
+	public void removeEvaObjects(String evaName, String targetClass, WDBObject[] targetObjects, DatabaseAdapter scda) throws Exception
 	{
 		//Don't do anything if the target objects to remove is null
 		if(targetObjects != null)
@@ -463,7 +463,7 @@ public class WDBObject implements Serializable {
 		}
 	}
 	
-	private void addEvaObject(EVA targetEva, WDBObject targetEvaObject, SleepyCatDataAdapter scda) throws Exception
+	private void addEvaObject(EVA targetEva, WDBObject targetEvaObject, DatabaseAdapter scda) throws Exception
 	{
 		//TODO: Make sure we update the objects that we removed when replacing with new values
 		if(targetEva.cardinality.equals(EVA.MULTIVALUED))
@@ -487,7 +487,7 @@ public class WDBObject implements Serializable {
 		}
 	}
 	
-	private Boolean removeEvaObject(EVA targetEva, WDBObject targetEvaObject, SleepyCatDataAdapter scda) throws Exception
+	private Boolean removeEvaObject(EVA targetEva, WDBObject targetEvaObject, DatabaseAdapter scda) throws Exception
 	{
 		if(targetEva.cardinality.equals(EVA.MULTIVALUED))
 		{
@@ -512,7 +512,7 @@ public class WDBObject implements Serializable {
 		}
 	}
 /*
-	private void addEvaInverse(EVA ownerEva, ClassDef ownerEvaClass, WDBObject ownerEvaObject, SleepyCatDataAdapter scda) throws Exception
+	private void addEvaInverse(EVA ownerEva, ClassDef ownerEvaClass, WDBObject ownerEvaObject, DatabaseAdapter scda) throws Exception
 	{
 		//Try to see if other class's inverse EVA is declared on my side
 		ClassDef myClass = this.getClassDef(scda);
@@ -565,7 +565,7 @@ public class WDBObject implements Serializable {
 		this.commit(scda);
 	}
 	*/
-	public WDBObject[] getEvaObjects(String evaName, SleepyCatDataAdapter scda) throws Exception
+	public WDBObject[] getEvaObjects(String evaName, DatabaseAdapter scda) throws Exception
 	{
 		ClassDef myClass = this.getClassDef(scda);
 		Attribute myAttribute = myClass.getAttribute(evaName);
@@ -1030,7 +1030,7 @@ public class WDBObject implements Serializable {
 	}
 	*/
 	
-	public ArrayList<Object> getAttributeValue(AttributePath attributePath, SleepyCatDataAdapter scda) throws Exception
+	public ArrayList<Object> getAttributeValue(AttributePath attributePath, DatabaseAdapter scda) throws Exception
 	{
 		ArrayList<Object> values = new ArrayList<Object>();
 		
@@ -1057,7 +1057,7 @@ public class WDBObject implements Serializable {
 		return values;
 	}
 	
-	public void PrintAttribute(PrintNode row, AttributePath attributePath, SleepyCatDataAdapter scda) throws Exception
+	public void PrintAttribute(PrintNode row, AttributePath attributePath, DatabaseAdapter scda) throws Exception
 	{	
 		ClassDef myClass = this.getClassDef(scda);
 		if(attributePath.levelsOfIndirection() <= 0)

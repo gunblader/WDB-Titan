@@ -121,7 +121,7 @@ public class SleepyCatDataBase {
 		return secDb;
 	}
 	
-	public SleepyCatDataAdapter newTransaction() throws Exception
+	public DatabaseAdapter newTransaction() throws Exception
 	{
 		Transaction txn = env.beginTransaction(null, null);
 		return new SleepyCatDataAdapter(this, txn);
