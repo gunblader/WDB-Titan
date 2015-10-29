@@ -21,7 +21,7 @@ import java.util.*;
 public class WDB {
 
 	private static QueryParser parser;
-	private static SleepyCatDataBase db;
+	private static DatabaseTool db;
 	private static BufferedReader in;
 	
 	public static void main(String[] args)

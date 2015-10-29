@@ -33,7 +33,7 @@ import java.util.*;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class SleepyCatDataBase {
+public class SleepyCatDataBase implements DatabaseTool {
 	protected String fileName;
 	protected String dbName;
 	protected EnvironmentConfig envConfig;
