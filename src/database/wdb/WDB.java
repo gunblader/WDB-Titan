@@ -21,7 +21,7 @@ import java.util.*;
 public class WDB {
 
 	private static QueryParser parser;
-	private static SleepyCatDataBase db;
+	private static DatabaseTool db;
 	private static BufferedReader in;
 	
 	public static void main(String[] args)
@@ -50,7 +50,8 @@ public class WDB {
 			System.out.println("WDB Simantic Database Project");
 			System.out.println("Copyright 2006 University of Texas at Austin");
 			System.out.println("DB Name: " + db.dbName + " DB Path: " + db.fileName);
-			
+			System.out.println(TitanDatabase.test());
+
 			WDB.in = new BufferedReader(new InputStreamReader(System.in));
 			WDB.parser = new QueryParser(WDB.in);
 			Query q;
@@ -162,7 +163,7 @@ public class WDB {
 			
 			try
 			{
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				
 				try
 				{
@@ -213,7 +214,7 @@ public class WDB {
 			ModifyQuery mq = (ModifyQuery)q;
 			try
 			{
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				
 				try
 				{
@@ -247,7 +248,7 @@ public class WDB {
 			
 			try
 			{
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				
 				try
 				{
@@ -316,7 +317,7 @@ public class WDB {
 			
 			try
 			{
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				try
 				{
 					ClassDef classDef = da.getClass(indexQ.className);
@@ -346,7 +347,7 @@ public class WDB {
 			{
 
 				
-				SleepyCatDataAdapter da = db.newTransaction();
+				DatabaseAdapter da = db.newTransaction();
 				try
 				{
 					ClassDef targetClass = da.getClass(rq.className);
@@ -483,7 +484,7 @@ public class WDB {
 		}
 	}
 	
-	private static void setDefaultValues(ClassDef targetClass, WDBObject targetObject, SleepyCatDataAdapter scda) throws Exception
+	private static void setDefaultValues(ClassDef targetClass, WDBObject targetObject, DatabaseAdapter scda) throws Exception
 	{
 		for(int j = 0; j < targetClass.numberOfAttributes(); j++)
 		{
@@ -497,7 +498,7 @@ public class WDB {
 			}
 		}
 	}
-	private static void checkRequiredValues(ClassDef targetClass, WDBObject targetObject, SleepyCatDataAdapter scda) throws Exception
+	private static void checkRequiredValues(ClassDef targetClass, WDBObject targetObject, DatabaseAdapter scda) throws Exception
 	{
 		for(int j = 0; j < targetClass.numberOfAttributes(); j++)
 		{
@@ -508,7 +509,7 @@ public class WDB {
 			}
 		}
 	}
-	private static void setValues(ArrayList assignmentList, WDBObject targetObject, SleepyCatDataAdapter scda) throws Exception
+	private static void setValues(ArrayList assignmentList, WDBObject targetObject, DatabaseAdapter scda) throws Exception
 	{
 		for(int j = 0; j < assignmentList.size(); j++)
 		{
