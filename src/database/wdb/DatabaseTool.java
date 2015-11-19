@@ -13,5 +13,5 @@ public interface DatabaseTool {
 	// used in WDB.java
 	DatabaseAdapter newTransaction() throws Exception;
 	void closeDb() throws Exception;
-	void openDb(String dbName) throws Exception;
+	void openDb() throws Exception;
 }
