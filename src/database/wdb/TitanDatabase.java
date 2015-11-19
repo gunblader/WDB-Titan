@@ -61,28 +61,22 @@ public class SleepyCatDataBase implements DatabaseTool {
 		this.secDbs = new Hashtable<String, SecondaryDatabase>();
 	}
 	
-	public void openDb(String dbName) throws Exception
+	public void openDb() throws Exception
 	{
 		//Open the database. Create it if it does not already exist.
-		TitanGraph g = TitanFactory.build().
+		TitanGraph g = TitanFactory.build().	
 				set("storage.backend", "berkeleyje").
 				set("storage.directory", "/tmp/graph").
 				open();
+		return graph;
 	}
 	
 	public void openSecDb(IndexDef index) throws Exception
 	{
-		this.secDbConfig = new SecondaryConfig();
-		this.secDbConfig.setTransactional(true);
-		this.secDbConfig.setAllowCreate(true);
-		this.secDbConfig.setAllowPopulate(true);
-		this.secDbConfig.setSortedDuplicates(!index.unique);
-		//this.secDbConfig.setDuplicateComparator(String.class);
-		this.secDbConfig.setKeyCreator(new SleepyCatKeyCreater(index, this.objectDb, this.classCatalog));
-		
-		SecondaryDatabase secDb = this.env.openSecondaryDatabase(null, index.name, this.objectDb, this.secDbConfig);
-		this.secDbs.put(index.name, secDb);
-		//return secDb;
+		TitanGraph graph = TitanFactory.build()
+				.set("storage.backend", "hbase")
+				.open();
+//		return graph;
 	}
 	
 	public DatabaseAdapter newTransaction() throws Exception
