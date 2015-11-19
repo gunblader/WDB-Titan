@@ -31,11 +31,34 @@ public class TitanDatabase implements DatabaseTool {
 				set("storage.backend", database).
 				set("storage.directory", directory).
 				open();
+		createSchema();
 	}
 	
 	public void openSecDb(IndexDef index) throws Exception
 	{
 		
+	}
+	
+	private void createSchema() throws Exception
+	{
+		TitanManagement mgmt = this.graph.openManagement();
+    	
+    	final PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
+    	TitanManagement.IndexBuilder nameIndexBuilder = mgmt.buildIndex("name", Vertex.class).addKey(name);
+        if (uniqueNameCompositeIndex)
+            nameIndexBuilder.unique();
+
+    	final PropertyKey time = mgmt.makePropertyKey("comment").dataType(Sting.class).make();
+    	final PropertyKey time = mgmt.makePropertyKey("attributes").dataType(ArrayList<Attribute>.class).make();
+    	final PropertyKey time = mgmt.makePropertyKey("instances").dataType(ArrayList<Integer>.class).make();
+    	final PropertyKey time = mgmt.makePropertyKey("indexes").dataType(ArrayList<IndexDef>.class).make();
+    	if (null != mixedIndexName)
+            mgmt.buildIndex("vertices", Vertex.class).addKey("comment").addKey("attributes").addKey("instances")
+            .addKey("indexes").buildMixedIndex(mixedIndexName);
+    	
+    	mgmt.makeVertexLabel("classDef").make();
+    	
+    	mgmt.commit();
 	}
 	
 	public DatabaseAdapter newTransaction() throws Exception

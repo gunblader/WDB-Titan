@@ -9,9 +9,12 @@ import java.util.ArrayList;
 
 public class TitanDatabaseAdapter implements DatabaseAdapter {
 
+	private TitanTransaction tx;
+	private TitanDatabase db;
 
     public TitanDatabaseAdapter(TitanDatabase database, TitanTransaction transaction) {
-
+    	this db = database;
+    	this tx = transaction;
     }
 
     @Override
@@ -26,7 +29,11 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public void putClass(ClassDef classDef) throws Exception {
-
+        
+    	Vertex x = tx.addVertex(T.label, "classDef", "name", classDef.name, "comment", classDef.comment, "attributes", classDef.attributes,
+    			 "instances", classDef.instances, "indexes", classDef.indexes);
+    	
+		this.scdb.getClassDb().put(this.txn, theKey, theData);
     }
 
     @Override

@@ -24,6 +24,8 @@ public class WDB {
 	private static DatabaseTool db;
 	private static BufferedReader in;
 	
+	private static TitanDatabase tdb;
+	
 	public static void main(String[] args)
 	{
     String installRoot = System.getenv("INSTANCE_ROOT");
@@ -46,6 +48,9 @@ public class WDB {
 		{
 			db = new SleepyCatDataBase(dbDir.toString());
 			db.openDb("test");
+			
+			tdb = new TitanDatabase();
+			tdb.openDb();
 			
 			System.out.println("WDB Simantic Database Project");
 			System.out.println("Copyright 2006 University of Texas at Austin");
