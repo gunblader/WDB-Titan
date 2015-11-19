@@ -16,9 +16,9 @@ import wdb.parser.SimpleNode;
 public class ClassDef extends Query implements Serializable {
 	public String name;
 	public String comment;
-	protected ArrayList<Attribute> attributes;
-	protected ArrayList<Integer> instances;
-	protected ArrayList<IndexDef> indexes;
+	public ArrayList<Attribute> attributes;
+	public ArrayList<Integer> instances;
+	public ArrayList<IndexDef> indexes;
 	
 	public ClassDef()
 	{

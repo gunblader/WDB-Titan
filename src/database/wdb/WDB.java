@@ -1,9 +1,4 @@
- /*
- * Created on Feb 3, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
+
 package wdb;
 
 import wdb.metadata.*;
@@ -14,36 +9,28 @@ import java.util.*;
 
 /**
  * @author Bo Li
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class WDB {
 
 	private static QueryParser parser;
 	private static DatabaseTool db;
 	private static BufferedReader in;
-	
-	public static void main(String[] args)
-	{
-    String installRoot = System.getenv("INSTANCE_ROOT");
-    if(installRoot == null)
-    {
-      System.out.println("Please set INSTANCE_ROOT variable");
-    }
-    File installRootDir = new File(installRoot);
-    if(!installRootDir.exists() || !installRootDir.isDirectory())
-    {
-      System.out.println("INSTANCE_ROOT variable is not a valid directory");
-    }
-    File dbDir = new File(installRootDir, "db");
-    if(!dbDir.exists())
-    {
-      dbDir.mkdir();
-    }
-    
-    try
-		{
+
+	public static void main(String[] args) {
+		String installRoot = System.getenv("INSTANCE_ROOT");
+		if (installRoot == null) {
+			System.out.println("Please set INSTANCE_ROOT variable");
+		}
+		File installRootDir = new File(installRoot);
+		if (!installRootDir.exists() || !installRootDir.isDirectory()) {
+			System.out.println("INSTANCE_ROOT variable is not a valid directory");
+		}
+		File dbDir = new File(installRootDir, "db");
+		if (!dbDir.exists()) {
+			dbDir.mkdir();
+		}
+
+		try {
 			db = new TitanDatabase(dbDir.toString());
 			db.openDb();
 
@@ -53,364 +40,258 @@ public class WDB {
 			WDB.in = new BufferedReader(new InputStreamReader(System.in));
 			WDB.parser = new QueryParser(WDB.in);
 			Query q;
-			
-			while(true)
-			{
-				try
-				{
-					if(!in.ready())
-					{
+
+			while (true) {
+				try {
+					if (!in.ready()) {
 						System.out.print("\nWDB>");
 					}
-					
+
 					q = parser.getNextQuery();
-					if(q == null)
-					{
+					if (q == null) {
 						break;
-					}
-				
-					else
-					{
+					} else {
 						processQuery(q);
 					}
-				}
-				catch(ParseException pe)
-				{
+				} catch (ParseException pe) {
 					System.out.println("SYNTAX ERROR: " + pe.getMessage());
 					QueryParser.ReInit(System.in);
-					
-				}
-				catch(TokenMgrError tme)
-				{
+				} catch (TokenMgrError tme) {
 					System.out.println("PARSER ERROR: " + tme.getMessage());
 					break;
-				}
-				catch(IOException ioe)
-				{
+				} catch (IOException ioe) {
 					System.out.println("STANDARD IN ERROR: " + ioe.getMessage());
 					break;
-				}
-				catch(NumberFormatException nfe)
-				{
+				} catch (NumberFormatException nfe) {
 					System.out.println("PARSE ERROR: Failed to convert to Integer " + nfe.getMessage());
 				}
 			}
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
-		}
-		finally
-		{
-			try
-			{
+		} finally {
+			try {
 				db.closeDb();
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				System.out.println("DATABASE CLOSE ERROR: " + e.getMessage());
 			}
 		}
 	}
 
-	
-	static private void processQuery(Query q)
-	{
-		if(q.getClass() == SourceQuery.class)
-		{
-			SourceQuery sq = (SourceQuery)q;
-			
-			try
-			{
+
+	static private void processQuery(Query q) {
+		if (q.getClass() == SourceQuery.class) {
+			SourceQuery sq = (SourceQuery) q;
+
+			try {
 				QueryParser.ReInit(new FileReader(sq.filename));
 				Query fq;
-				while(true)
-				{
+				while (true) {
 					fq = parser.getNextQuery();
-					if(fq == null)
-					{
+					if (fq == null) {
 						break;
-					}
-					else
-					{
+					} else {
 						processQuery(fq);
 					}
 				}
-			}
-			catch(FileNotFoundException e)
-			{
+			} catch (FileNotFoundException e) {
 				System.out.println("FILE OPEN ERROR: " + e.getMessage());
-			}
-			catch(ParseException pe)
-			{
+			} catch (ParseException pe) {
 				System.out.println("SYNTAX ERROR: " + pe.getMessage());
-			}
-			catch(TokenMgrError tme)
-			{
+			} catch (TokenMgrError tme) {
 				System.out.println("PARSER ERROR: " + tme.getMessage());
-			}
-			finally
-			{
+			} finally {
 				QueryParser.ReInit(WDB.in);
 			}
 		}
-		
-		if(q.getClass() == ClassDef.class || q.getClass() == SubclassDef.class)
-		{
-			ClassDef cd = (ClassDef)q;
-			
-			try
-			{
+
+		if (q.getClass() == ClassDef.class || q.getClass() == SubclassDef.class) {
+			ClassDef cd = (ClassDef) q;
+
+			try {
 				DatabaseAdapter da = db.newTransaction();
-				
-				try
-				{
-					try
-					{
+
+				try {
+					try {
 						da.getClass(cd.name);
 						//That class alreadly exists;
 						throw new Exception("Class \"" + cd.name + "\" alreadly exists");
-					}
-					catch(ClassNotFoundException cnfe)
-					{
-						if(cd.getClass() == SubclassDef.class)
-						{
+					} catch (ClassNotFoundException cnfe) {
+						if (cd.getClass() == SubclassDef.class) {
 							ClassDef baseClass = null;
-							for(int i = 0; i < ((SubclassDef)cd).numberOfSuperClasses(); i++)
-							{
+							for (int i = 0; i < ((SubclassDef) cd).numberOfSuperClasses(); i++) {
 								//Cycles are implisitly checked since getClass will fail for the current defining class
-								ClassDef superClass = da.getClass(((SubclassDef)cd).getSuperClass(i));
-								if(baseClass == null)
-								{
+								ClassDef superClass = da.getClass(((SubclassDef) cd).getSuperClass(i));
+								if (baseClass == null) {
 									baseClass = superClass.getBaseClass(da);
-								}
-								else if(!baseClass.name.equals(superClass.getBaseClass(da).name))
-								{
+								} else if (!baseClass.name.equals(superClass.getBaseClass(da).name)) {
 									throw new Exception("Super classes of class \"" + cd.name + "\" does not share the same base class");
 								}
 							}
 						}
-						
+
 						da.putClass(cd);
 						da.commit();
 					}
-				}
-				catch(Exception e)
-				{
+				} catch (Exception e) {
 					System.out.println(e.toString() + ": " + e.getMessage());
 					da.abort();
 				}
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				System.out.println(e.toString() + ": " + e.getMessage());
 			}
 		}
-		
-		if(q.getClass() == ModifyQuery.class)
-		{
-			ModifyQuery mq = (ModifyQuery)q;
-			try
-			{
+
+		if (q.getClass() == ModifyQuery.class) {
+			ModifyQuery mq = (ModifyQuery) q;
+			try {
 				DatabaseAdapter da = db.newTransaction();
-				
-				try
-				{
+
+				try {
 					ClassDef targetClass = da.getClass(mq.className);
 					WDBObject[] targetClassObjs = targetClass.search(mq.expression, da);
-					if(mq.limit > -1 && targetClassObjs.length > mq.limit)
-					{
+					if (mq.limit > -1 && targetClassObjs.length > mq.limit) {
 						throw new Exception("Matching entities exceeds limit of " + mq.limit.toString());
 					}
-					for(int i = 0; i < targetClassObjs.length; i++)
-					{
+					for (int i = 0; i < targetClassObjs.length; i++) {
 						setValues(mq.assignmentList, targetClassObjs[i], da);
 					}
 					da.commit();
-				}
-				catch(Exception e)
-				{
+				} catch (Exception e) {
 					System.out.println(e.toString());
 					da.abort();
 				}
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				System.out.println(e.toString());
 			}
 		}
-		
-		if(q.getClass() == InsertQuery.class)
-		{	
-			InsertQuery iq = (InsertQuery)q;
-			
-			try
-			{
+
+		if (q.getClass() == InsertQuery.class) {
+			InsertQuery iq = (InsertQuery) q;
+
+			try {
 				DatabaseAdapter da = db.newTransaction();
-				
-				try
-				{
+
+				try {
 					ClassDef targetClass = da.getClass(iq.className);
 					WDBObject newObject = null;
-					
-					if(iq.fromClassName != null)
-					{
+
+					if (iq.fromClassName != null) {
 						//Inserting from an entity of a superclass...
-						if(targetClass.getClass() == SubclassDef.class)
-						{
-							SubclassDef targetSubClass = (SubclassDef)targetClass;
+						if (targetClass.getClass() == SubclassDef.class) {
+							SubclassDef targetSubClass = (SubclassDef) targetClass;
 							ClassDef fromClass = da.getClass(iq.fromClassName);
-							if(targetSubClass.isSubclassOf(fromClass.name, da))
-							{
+							if (targetSubClass.isSubclassOf(fromClass.name, da)) {
 								WDBObject[] fromObjects = fromClass.search(iq.expression, da);
-								if(fromObjects.length <= 0)
-								{
+								if (fromObjects.length <= 0) {
 									throw new IllegalStateException("Can't find any entities from class \"" + fromClass.name + "\" to extend");
 								}
-								for(int i = 0; i < fromObjects.length; i++)
-								{
+								for (int i = 0; i < fromObjects.length; i++) {
 									newObject = targetSubClass.newInstance(fromObjects[i].getBaseObject(da), da);
 									setValues(iq.assignmentList, newObject, da);
 								}
-							}
-							else
-							{
+							} else {
 								throw new IllegalStateException("Inserted class \"" + targetClass.name + "\" is not a subclass of the from class \"" + iq.fromClassName);
 							}
-						}
-						else
-						{
+						} else {
 							throw new IllegalStateException("Can't extend base class \"" + targetClass.name + "\" from class \"" + iq.fromClassName);
 						}
-					}
-					else
-					{
+					} else {
 						//Just inserting a new entity
 						newObject = targetClass.newInstance(null, da);
 						setDefaultValues(targetClass, newObject, da);
 						setValues(iq.assignmentList, newObject, da);
 						checkRequiredValues(targetClass, newObject, da);
 					}
-				
-					if(newObject != null)
-					{
+
+					if (newObject != null) {
 						newObject.commit(da);
 					}
 					da.commit();
-				}
-				catch(Exception e)
-				{
+				} catch (Exception e) {
 					System.out.println(e.toString());
 					da.abort();
 				}
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				System.out.println(e.toString());
 			}
 		}
-		if(q.getClass() == IndexDef.class)
-		{
-			IndexDef indexQ = (IndexDef)q;
-			
-			try
-			{
+		if (q.getClass() == IndexDef.class) {
+			IndexDef indexQ = (IndexDef) q;
+
+			try {
 				DatabaseAdapter da = db.newTransaction();
-				try
-				{
+				try {
 					ClassDef classDef = da.getClass(indexQ.className);
 					classDef.addIndex(indexQ, da);
-					
+
 					db.openSecDb(indexQ);
-					
+
 					da.commit();
-				}
-				catch(Exception e)
-				{
+				} catch (Exception e) {
 					System.out.println(e.toString());
 					da.abort();
 				}
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				System.out.println(e.toString());
 			}
 		}
-		if(q.getClass() == RetrieveQuery.class)
-		{
+		if (q.getClass() == RetrieveQuery.class) {
 			//Ok, its a retrieve...
-			RetrieveQuery rq = (RetrieveQuery)q;
-			
-			try
-			{
+			RetrieveQuery rq = (RetrieveQuery) q;
 
-				
+			try {
+
+
 				DatabaseAdapter da = db.newTransaction();
-				try
-				{
+				try {
 					ClassDef targetClass = da.getClass(rq.className);
 					WDBObject[] targetClassObjs = targetClass.search(rq.expression, da);
 					int i, j;
 					String[][] table;
 					String[][] newtable;
-					
-					PrintNode node = new PrintNode(0,0);
-					for(j = 0; j < rq.numAttributePaths(); j++)
-					{
+
+					PrintNode node = new PrintNode(0, 0);
+					for (j = 0; j < rq.numAttributePaths(); j++) {
 						targetClass.printAttributeName(node, rq.getAttributePath(j), da);
 					}
 					table = node.printRow();
-					for(i = 0; i < targetClassObjs.length; i++)
-					{
-						node = new PrintNode(0,0);
-						for(j = 0; j < rq.numAttributePaths(); j++)
-						{
+					for (i = 0; i < targetClassObjs.length; i++) {
+						node = new PrintNode(0, 0);
+						for (j = 0; j < rq.numAttributePaths(); j++) {
 							targetClassObjs[i].PrintAttribute(node, rq.getAttributePath(j), da);
 						}
 						newtable = joinRows(table, node.printRow());
 						table = newtable;
 					}
-					
+
 					da.commit();
-					
-					Integer[] columnWidths= new Integer[table[0].length];
-					
-					for(i = 0; i < columnWidths.length; i++)
-					{
+
+					Integer[] columnWidths = new Integer[table[0].length];
+
+					for (i = 0; i < columnWidths.length; i++) {
 						columnWidths[i] = 0;
-						for(j = 0; j < table.length; j++)
-						{
-							if(i < table[j].length && table[j][i] != null && table[j][i].length() > columnWidths[i])
-							{
+						for (j = 0; j < table.length; j++) {
+							if (i < table[j].length && table[j][i] != null && table[j][i].length() > columnWidths[i]) {
 								columnWidths[i] = table[j][i].length();
 							}
 						}
 					}
-					
-					for(i = 0; i < table.length; i++)
-					{
-						for(j = 0; j < table[0].length; j++)
-						{
-							if(j >= table[i].length || table[i][j] == null)
-							{
-								System.out.format("| %"+columnWidths[j].toString()+"s ", "");
+
+					for (i = 0; i < table.length; i++) {
+						for (j = 0; j < table[0].length; j++) {
+							if (j >= table[i].length || table[i][j] == null) {
+								System.out.format("| %" + columnWidths[j].toString() + "s ", "");
+							} else {
+								System.out.format("| %" + columnWidths[j].toString() + "s ", table[i][j]);
 							}
-							else
-							{
-								System.out.format("| %"+columnWidths[j].toString()+"s ", table[i][j]);
-							}
-						}	
+						}
 						System.out.format("|%n");
 					}
-				}
-				catch(Exception e)
-				{
+				} catch (Exception e) {
 					System.out.println(e.toString());
 					da.abort();
 				}
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				System.out.println(e.toString());
 			}
 			/*
@@ -481,85 +362,62 @@ public class WDB {
 			}*/
 		}
 	}
-	
-	private static void setDefaultValues(ClassDef targetClass, WDBObject targetObject, DatabaseAdapter scda) throws Exception
-	{
-		for(int j = 0; j < targetClass.numberOfAttributes(); j++)
-		{
-			if(targetClass.getAttribute(j) instanceof DVA)
-			{
-				DVA dva = (DVA)targetClass.getAttribute(j);
-				if(dva.initialValue != null)
-				{
+
+	private static void setDefaultValues(ClassDef targetClass, WDBObject targetObject, DatabaseAdapter scda) throws Exception {
+		for (int j = 0; j < targetClass.numberOfAttributes(); j++) {
+			if (targetClass.getAttribute(j) instanceof DVA) {
+				DVA dva = (DVA) targetClass.getAttribute(j);
+				if (dva.initialValue != null) {
 					targetObject.setDvaValue(dva.name, dva.initialValue, scda);
 				}
 			}
 		}
 	}
-	private static void checkRequiredValues(ClassDef targetClass, WDBObject targetObject, DatabaseAdapter scda) throws Exception
-	{
-		for(int j = 0; j < targetClass.numberOfAttributes(); j++)
-		{
-			Attribute attribute = (Attribute)targetClass.getAttribute(j);
-			if(attribute.required != null && attribute.required && targetObject.getDvaValue(attribute.name, scda) == null)
-			{
+
+	private static void checkRequiredValues(ClassDef targetClass, WDBObject targetObject, DatabaseAdapter scda) throws Exception {
+		for (int j = 0; j < targetClass.numberOfAttributes(); j++) {
+			Attribute attribute = (Attribute) targetClass.getAttribute(j);
+			if (attribute.required != null && attribute.required && targetObject.getDvaValue(attribute.name, scda) == null) {
 				throw new Exception("Attribute \"" + targetClass.getAttribute(j).name + "\" is required");
 			}
 		}
 	}
-	private static void setValues(ArrayList assignmentList, WDBObject targetObject, DatabaseAdapter scda) throws Exception
-	{
-		for(int j = 0; j < assignmentList.size(); j++)
-		{
-			if(assignmentList.get(j) instanceof DvaAssignment)
-			{
-				DvaAssignment dvaAssignment = (DvaAssignment)assignmentList.get(j);
+
+	private static void setValues(ArrayList assignmentList, WDBObject targetObject, DatabaseAdapter scda) throws Exception {
+		for (int j = 0; j < assignmentList.size(); j++) {
+			if (assignmentList.get(j) instanceof DvaAssignment) {
+				DvaAssignment dvaAssignment = (DvaAssignment) assignmentList.get(j);
 				targetObject.setDvaValue(dvaAssignment.AttributeName, dvaAssignment.Value, scda);
-			}
-			
-			else if(assignmentList.get(j) instanceof EvaAssignment)
-			{
-				EvaAssignment evaAssignment = (EvaAssignment)assignmentList.get(j);
-				if(evaAssignment.mode == EvaAssignment.REPLACE_MODE)
-				{
+			} else if (assignmentList.get(j) instanceof EvaAssignment) {
+				EvaAssignment evaAssignment = (EvaAssignment) assignmentList.get(j);
+				if (evaAssignment.mode == EvaAssignment.REPLACE_MODE) {
 					WDBObject[] currentObjects = targetObject.getEvaObjects(evaAssignment.AttributeName, scda);
 					targetObject.removeEvaObjects(evaAssignment.AttributeName, evaAssignment.targetClass, currentObjects, scda);
 					targetObject.addEvaObjects(evaAssignment.AttributeName, evaAssignment.targetClass, evaAssignment.expression, scda);
-				}
-				else if(evaAssignment.mode == EvaAssignment.EXCLUDE_MODE)
-				{
+				} else if (evaAssignment.mode == EvaAssignment.EXCLUDE_MODE) {
 					targetObject.removeEvaObjects(evaAssignment.AttributeName, evaAssignment.targetClass, evaAssignment.expression, scda);
-				}
-				else if(evaAssignment.mode == EvaAssignment.INCLUDE_MODE)
-				{
+				} else if (evaAssignment.mode == EvaAssignment.INCLUDE_MODE) {
 					targetObject.addEvaObjects(evaAssignment.AttributeName, evaAssignment.targetClass, evaAssignment.expression, scda);
-				}
-				else
-				{
+				} else {
 					throw new Exception("Unsupported multivalue EVA insert/modify mode");
 				}
 			}
 		}
 	}
-	private static String[][] joinRows(String[][] row1, String[][] row2)
-	{
-		if(row1.length <= 0)
-		{
+
+	private static String[][] joinRows(String[][] row1, String[][] row2) {
+		if (row1.length <= 0) {
 			return row2;
-		}
-		else
-		{
-			String[][] newRow = new String[row1.length+row2.length][row1[0].length];
+		} else {
+			String[][] newRow = new String[row1.length + row2.length][row1[0].length];
 			int i, j;
-			for(i = 0; i < row1.length; i++)
-			{
+			for (i = 0; i < row1.length; i++) {
 				newRow[i] = row1[i];
 			}
-			for(j = i; j < row2.length + i; j++)
-			{
-				newRow[j] = row2[j-i];
+			for (j = i; j < row2.length + i; j++) {
+				newRow[j] = row2[j - i];
 			}
-			
+
 			return newRow;
 		}
 	}

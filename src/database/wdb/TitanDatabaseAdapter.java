@@ -1,12 +1,10 @@
 package wdb;
 
 import com.thinkaurelius.titan.core.TitanTransaction;
+import com.thinkaurelius.titan.core.TitanVertex;
 import com.thinkaurelius.titan.core.schema.TitanGraphIndex;
 import org.apache.tinkerpop.gremlin.structure.T;
-import wdb.metadata.Attribute;
-import wdb.metadata.ClassDef;
-import wdb.metadata.IndexDef;
-import wdb.metadata.WDBObject;
+import wdb.metadata.*;
 import com.tinkerpop.blueprints.Vertex;
 
 import java.util.ArrayList;
@@ -34,13 +32,27 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public void putClass(ClassDef classDef) throws Exception {
-        Vertex x = tx.addVertex(T.label, "classDef", "name", classDef.name, "comment", classDef.comment, "attributes", classDef.attributes,
-                "instances", classDef.instances, "indexes", classDef.indexes);
+        //Vertex x = tx.addVertex(T.label, "classDef", "name", classDef.name, "comment", classDef.comment, "attributes", classDef.attributes,
+         //       "instances", classDef.instances, "indexes", classDef.indexes);
+
+        if(classDef instanceof SubclassDef) {
+            // include superclasses
+            TitanVertex cd = tx.addVertex(T.label, "ClassDef", "name", classDef.name, "comment", classDef.comment);
+        }
+        else {
+            for(Integer instances: classDef.instances)
+                    TitanVertex cd = tx.addVertex(T.label, "ClassDef", "name", classDef.name, "comment", classDef.comment);
+        }
+
+    }
+
+
 
     }
 
     @Override
     public ClassDef getClass(String className) throws Exception {
+        /*
         TitanGraphIndex index = mgmt.getGraphIndex(className);
         String name = index.name();
         String comment = index.getParametersFor("comment")[0];
@@ -51,6 +63,8 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             this.instances = new ArrayList<Integer>(Arrays.asList(index.getParametersFor("instances")));
             this.indexes = new ArrayList<IndexDef>(Arrays.asList(index.getParametersFor("indexes")));
         };
+        */
+        return null;
     }
 
     @Override
