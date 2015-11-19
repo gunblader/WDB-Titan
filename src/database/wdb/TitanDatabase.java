@@ -61,7 +61,7 @@ public class SleepyCatDataBase implements DatabaseTool {
 		this.secDbs = new Hashtable<String, SecondaryDatabase>();
 	}
 	
-	public void openDb(String dbName) throws Exception
+	public void openDb() throws Exception
 	{
 		//Open the database. Create it if it does not already exist.
 		TitanGraph g = TitanFactory.build().	
@@ -76,7 +76,7 @@ public class SleepyCatDataBase implements DatabaseTool {
 		TitanGraph graph = TitanFactory.build()
 				.set("storage.backend", "hbase")
 				.open();
-		return graph;
+//		return graph;
 	}
 	
 	public DatabaseAdapter newTransaction() throws Exception
