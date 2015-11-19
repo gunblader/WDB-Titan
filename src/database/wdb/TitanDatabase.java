@@ -12,43 +12,35 @@ import com.thinkaurelius.titan.core.TitanTransaction;
 import wdb.metadata.ClassDef;
 import wdb.metadata.IndexDef;
 
-public class TitanDatabase implements DatabaseTool {
-	
-	private String directory;
-	private TitanGraph graph;
-	
-	public TitanDatabase(String directory) throws Exception
-	{
-		this.directory = directory;
-		
-	}
-	
-	public void openDb(String database) throws Exception
-	{
-//		String db = "berkeleyje";
-		//Open the database. Create it if it does not already exist.
-		this.graph = TitanFactory.build().
-				set("storage.backend", database).
-				set("storage.directory", directory).
-				open();
-	}
-	
-	public void openSecDb(IndexDef index) throws Exception
-	{
-		
-	}
-	
-	public DatabaseAdapter newTransaction() throws Exception
-	{
-//		Transaction txn = env.beginTransaction(null, null);
-//		return new SleepyCatDataAdapter(this, txn);
-		
-		TitanTransaction tx = graph.newTransaction();
-		return new TitanDatabaseAdapter(this, tx);
-	}
-	
-	public void closeDb() throws Exception
-	{
-		graph.close();
-	}
+public class TitanDatabase implements DatabaseTool {    
+    private String databasePath;
+    private TitanGraph graph;
+    
+    public TitanDatabase(String databasePath) throws Exception
+    {
+        this.databasePath = databasePath;   
+    } 
+
+    public void openSecDb(IndexDef index) throws Exception
+    {
+        //open indexed graph
+    }
+
+    public void openDb() throws Exception
+    {
+        this.graph = TitanFactory.build().
+                set("storage.backend", "berkeleyje").
+                set("storage.directory", databasePath).
+                open();
+    } 
+    public void closeDb() throws Exception
+    {
+        graph.close();
+    }
+
+    public DatabaseAdapter newTransaction() throws Exception
+    {
+        TitanTransaction tx = graph.newTransaction();
+        return new TitanDatabaseAdapter(this, tx);
+    }
 }
