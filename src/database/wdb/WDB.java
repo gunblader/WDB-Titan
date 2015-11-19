@@ -50,7 +50,7 @@ public class WDB {
 			System.out.println("WDB Simantic Database Project");
 			System.out.println("Copyright 2006 University of Texas at Austin");
 			System.out.println("DB Name: " + db.dbName + " DB Path: " + db.fileName);
-			System.out.println(TitanDatabase.test());
+			//System.out.println(TitanDatabase.test());
 
 			WDB.in = new BufferedReader(new InputStreamReader(System.in));
 			WDB.parser = new QueryParser(WDB.in);
