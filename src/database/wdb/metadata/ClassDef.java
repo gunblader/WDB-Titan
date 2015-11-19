@@ -5,8 +5,6 @@ import java.util.*;
 import java.rmi.server.*;
 
 import wdb.DatabaseAdapter;
-import wdb.SleepyCatDataAdapter;
-
 import wdb.parser.SimpleNode;
 
 /**

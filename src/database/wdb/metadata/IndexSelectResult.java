@@ -1,8 +1,6 @@
 package wdb.metadata;
 
 import wdb.DatabaseAdapter;
-import wdb.SleepyCatDataAdapter;
-import wdb.metadata.*;
 import java.util.Hashtable;
 import java.util.ArrayList;
 
