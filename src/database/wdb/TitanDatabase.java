@@ -27,117 +27,46 @@ import com.sleepycat.je.Cursor;
 import java.io.File;
 import java.util.*;
 
-/**
- * @author Bo Li
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
-public class SleepyCatDataBase implements DatabaseTool {
-	protected String fileName;
-	protected String dbName;
-	protected EnvironmentConfig envConfig;
-	protected Environment env;
-	protected DatabaseConfig dbConfig;
-	protected Database objectDb;
-	protected Database classDb;
-	protected DatabaseConfig classCatalogDbConfig;
-	protected StoredClassCatalog classCatalog;
-	protected SecondaryConfig secDbConfig;
-	protected String classKeyPrefix;
-	protected String objectKeyPrefix;
-	protected Hashtable<String, SecondaryDatabase> secDbs;
+public class TitanDatabase implements DatabaseTool {
 	
+	private String directory;
 	
-	public SleepyCatDataBase(String fileName) throws Exception
+	public TitanDatabase(String directory) throws Exception
 	{
-		this.fileName = fileName;
-		this.envConfig = new EnvironmentConfig();
-		this.envConfig.setTransactional(true);
-		this.envConfig.setAllowCreate(true);
-		this.env = new Environment(new File(this.fileName), this.envConfig);
-		this.classKeyPrefix = "class";
-		this.objectKeyPrefix = "object";
-		this.secDbs = new Hashtable<String, SecondaryDatabase>();
+		this.directory = directory;
+		
 	}
 	
-	public void openDb() throws Exception
+	public void openDb(String database) throws Exception
 	{
+//		String db = "berkeleyje";
 		//Open the database. Create it if it does not already exist.
 		TitanGraph g = TitanFactory.build().	
-				set("storage.backend", "berkeleyje").
-				set("storage.directory", "/tmp/graph").
+				set("storage.backend", database).
+				set("storage.directory", directory).
 				open();
-		return graph;
+		return g;
 	}
 	
 	public void openSecDb(IndexDef index) throws Exception
 	{
-		TitanGraph graph = TitanFactory.build()
-				.set("storage.backend", "hbase")
-				.open();
-//		return graph;
+		
 	}
 	
 	public DatabaseAdapter newTransaction() throws Exception
 	{
-		Transaction txn = env.beginTransaction(null, null);
-		return new SleepyCatDataAdapter(this, txn);
-	}
-	
-	public Database getObjectDb() throws Exception
-	{
-		return this.objectDb;
-	}
-	
-	public Database getClassDb() throws Exception
-	{
-		return this.classDb;
-	}
-	
-	public StoredClassCatalog getClassCatalog() throws Exception
-	{
-		return this.classCatalog;
-	}
-	
-	public SecondaryDatabase getSecDb(IndexDef index) throws Exception
-	{
-		SecondaryDatabase secDb = (SecondaryDatabase)this.secDbs.get(index.name);
+//		Transaction txn = env.beginTransaction(null, null);
+//		return new SleepyCatDataAdapter(this, txn);
 		
-		if(secDb == null)
-		{
-			throw new Exception("Index \"" + index.name + "\" is not defined");
-		}
-		
-		return secDb;
+		TitanTransaction tx = graph.newTransaction();
+		return new TitanDatabaseAdapter(this, tx);
 	}
+	
+	
 	
 	public void closeDb() throws Exception
 	{
-		Enumeration secDbKeys = this.secDbs.keys();
-		while(secDbKeys.hasMoreElements())
-		{
-			SecondaryDatabase secDb = (SecondaryDatabase)secDbs.get(secDbKeys.nextElement());
-			secDb.close();
-		}
-		this.objectDb.close();
-		this.classDb.close();
-		this.classCatalog.close();
-		this.env.close();
-	}
-
-	/**
-	 * @return Returns the classKeyPrefix.
-	 */
-	public String getClassKeyPrefix() {
-		return classKeyPrefix;
-	}
-
-	/**
-	 * @return Returns the objectKeyPrefix.
-	 */
-	public String getObjectKeyPrefix() {
-		return objectKeyPrefix;
+		graph.close();
 	}
 	
 }
