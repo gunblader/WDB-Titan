@@ -2,10 +2,12 @@ package wdb;
 
 import com.thinkaurelius.titan.core.TitanTransaction;
 import com.thinkaurelius.titan.core.schema.TitanGraphIndex;
+import org.apache.tinkerpop.gremlin.structure.T;
 import wdb.metadata.Attribute;
 import wdb.metadata.ClassDef;
 import wdb.metadata.IndexDef;
 import wdb.metadata.WDBObject;
+import com.tinkerpop.blueprints.Vertex;
 
 import java.util.ArrayList;
 import java.util.Arrays;

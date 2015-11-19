@@ -6,7 +6,7 @@ import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanTransaction;
 import com.thinkaurelius.titan.core.schema.TitanManagement;
-
+import com.tinkerpop.blueprints.Vertex;
 
 import wdb.metadata.ClassDef;
 import wdb.metadata.IndexDef;

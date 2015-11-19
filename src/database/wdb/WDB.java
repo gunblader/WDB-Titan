@@ -34,7 +34,7 @@ public class WDB {
     File installRootDir = new File(installRoot);
     if(!installRootDir.exists() || !installRootDir.isDirectory())
     {
-      System.out.println("INSTANCE_ROOT vairable is not a valid directory");
+      System.out.println("INSTANCE_ROOT variable is not a valid directory");
     }
     File dbDir = new File(installRootDir, "db");
     if(!dbDir.exists())
@@ -44,13 +44,11 @@ public class WDB {
     
     try
 		{
-			db = new SleepyCatDataBase(dbDir.toString());
-			db.openDb("test");
-			
+			db = new TitanDatabase(dbDir.toString());
+			db.openDb();
+
 			System.out.println("WDB Simantic Database Project");
 			System.out.println("Copyright 2006 University of Texas at Austin");
-			System.out.println("DB Name: " + db.dbName + " DB Path: " + db.fileName);
-			//System.out.println(TitanDatabase.test());
 
 			WDB.in = new BufferedReader(new InputStreamReader(System.in));
 			WDB.parser = new QueryParser(WDB.in);
