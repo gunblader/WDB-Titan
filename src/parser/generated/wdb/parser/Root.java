@@ -2,12 +2,6 @@
 
 package wdb.parser;
 
-import java.util.ArrayList;
-
-import wdb.*;
-import wdb.metadata.IndexSelectResult;
-import wdb.metadata.WDBObject;
-
 public class Root extends SimpleNode {
   public Root(int id) {
     super(id);
@@ -15,16 +9,6 @@ public class Root extends SimpleNode {
 
   public Root(QueryParser p, int id) {
     super(p, id);
-  }
-  public IndexSelectResult filterObjectsWithIndexes(SleepyCatDataAdapter da, ArrayList indexes) throws Exception
-  {
-	  SimpleNode n = (SimpleNode)children[0];
-	  return n.filterObjectsWithIndexes(da, indexes);
-  }
-  public boolean eval(SleepyCatDataAdapter da, WDBObject wdbO) throws Exception
-  {
-  	SimpleNode n = (SimpleNode)children[0];
-  	return n.eval(da, wdbO);
   }
 
 }
