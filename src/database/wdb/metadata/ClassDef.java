@@ -26,6 +26,7 @@ public class ClassDef extends Query implements Serializable {
 		attributes = new ArrayList<Attribute>();
 		instances = new ArrayList<Integer>();
 		indexes = new ArrayList<IndexDef>();
+		comment = "";
 	}
 	
 	public ClassDef(String _name, String _comment)

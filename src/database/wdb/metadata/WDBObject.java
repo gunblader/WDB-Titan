@@ -19,15 +19,17 @@ import java.util.*;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class WDBObject implements Serializable {
-	private String classDefName;
-	private Integer Uid;
+	public String classDefName;
+	public Integer Uid;
 	
-	private Hashtable<String, Integer> parents;
-	private Hashtable<String, Integer> children;
+	public Hashtable<String, Integer> parents;
+	public Hashtable<String, Integer> children;
 	
-	private Hashtable<String, Object> evaObjects;
-	private Hashtable<String, Object> dvaValues;
-	
+	public Hashtable<String, Object> evaObjects;
+	public Hashtable<String, Object> dvaValues;
+
+	public WDBObject() {}
+
 	public WDBObject(Hashtable<String, Integer> parents, Hashtable<String, Integer> children, Hashtable<String, Object> evaObjects, Hashtable<String, Object> dvaValues, String classDefName, Integer Uid)
 	{
 		this.parents = parents;

@@ -1,5 +1,4 @@
 package wdb.metadata;
-
 import wdb.DatabaseAdapter;
 import java.util.Hashtable;
 import java.util.ArrayList;

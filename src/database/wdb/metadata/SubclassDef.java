@@ -21,7 +21,7 @@ import java.util.*;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public final class SubclassDef extends ClassDef{
-	private ArrayList superClasses;
+	public List<String> superClasses;
 
 	public SubclassDef()
 	{

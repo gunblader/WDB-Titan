@@ -25,7 +25,7 @@ public class WDB {
 		if (!installRootDir.exists() || !installRootDir.isDirectory()) {
 			System.out.println("INSTANCE_ROOT variable is not a valid directory");
 		}
-		File dbDir = new File(installRootDir, "db");
+		File dbDir = new File(installRootDir, "thedb");
 		if (!dbDir.exists()) {
 			dbDir.mkdir();
 		}

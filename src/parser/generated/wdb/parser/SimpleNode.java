@@ -5,7 +5,7 @@ import wdb.*;
 import wdb.metadata.IndexSelectResult;
 import wdb.metadata.WDBObject;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class SimpleNode implements Node {
   protected Node parent;
@@ -73,7 +73,7 @@ public class SimpleNode implements Node {
       }
     }
   }
-  public IndexSelectResult filterObjectsWithIndexes(DatabaseAdapter da, ArrayList indexes) throws Exception
+  public IndexSelectResult filterObjectsWithIndexes(DatabaseAdapter da, List indexes) throws Exception
   {
     IndexSelectResult isr = new IndexSelectResult();
     //These conditions are not supported so return a "scan" or "can't help" result

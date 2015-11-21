@@ -21,6 +21,8 @@ public class Attribute implements Serializable  {
 	
 	public Attribute()
 	{
+		name = "";
+		comment = "";
 	}
 	
 	public Attribute(String _name, String _comment,Boolean _required)
