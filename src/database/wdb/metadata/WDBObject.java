@@ -227,30 +227,32 @@ public class WDBObject implements Serializable {
 		
 		return value;
 	}
-	
+
 	public void setDvaValue(String dvaName, Object value, DatabaseAdapter scda) throws Exception
-	{	
+	{
 		//See if its immediate in this class
 		ClassDef myClass = this.getClassDef(scda);
-    Attribute myAttribute = myClass.getAttribute(dvaName);
-    if(myAttribute != null && myAttribute.getClass() == DVA.class)
-    {
-      if(value instanceof String)
-      {
-        this.dvaValues.put(dvaName, value);
-      }
-      else if(value instanceof Integer)
-      {
-        this.dvaValues.put(dvaName, value);
-      }
-      else if(value instanceof Boolean)
-      {
-        this.dvaValues.put(dvaName, value);
-      }
-      else
-      {
-        throw new ClassCastException("Type verification failed: Attribute \"" + dvaName + "\" type: " + ((DVA)myAttribute).type.toString() + ", Value type: " + value.getClass().toString());
-      }
+
+		System.out.println("hc: " + myClass.getClass().toString()	);
+		Attribute myAttribute = myClass.getAttribute(dvaName);
+		if(myAttribute != null && myAttribute.getClass() == DVA.class)
+		{
+			if(value instanceof String)
+			{
+				this.dvaValues.put(dvaName, value);
+			}
+			else if(value instanceof Integer)
+			{
+				this.dvaValues.put(dvaName, value);
+			}
+			else if(value instanceof Boolean)
+			{
+				this.dvaValues.put(dvaName, value);
+			}
+			else
+			{
+				throw new ClassCastException("Type verification failed: Attribute \"" + dvaName + "\" type: " + ((DVA)myAttribute).type.toString() + ", Value type: " + value.getClass().toString());
+			}
 		}
 		//Not immediate, go check parents if I'm an object of a subclass
 		else if(myClass.getClass() == SubclassDef.class)
@@ -263,7 +265,7 @@ public class WDBObject implements Serializable {
 					String parentClass = (String)e.nextElement();
 					Integer parentUid = (Integer)parents.get(parentClass);
 					WDBObject parent = scda.getObject(parentClass, parentUid);
-					
+
 					parent.setDvaValue(dvaName, value, scda);
 					//If we reached here, we set our value. Get out of here
 					break;
@@ -275,7 +277,7 @@ public class WDBObject implements Serializable {
 					{
 						//No more parents to try. We are here if we exausted our parent's list and 
 						//still can't find the DVA. Throw exception
-						throw nsfe; 
+						throw nsfe;
 					}
 				}
 			}
@@ -283,12 +285,13 @@ public class WDBObject implements Serializable {
 		//value can't be found and I'm not a subclass. It doesn't exist in this heirarchy
 		else
 		{
+			System.out.println("setchedld");
 			throw new NoSuchFieldException("Attribute \"" + dvaName + "\" is not a valid DVA");
 		}
-		
+
 		this.commit(scda);
 	}
-	
+
 	public void addEvaObjects(String evaName, String targetClass, SimpleNode expression, DatabaseAdapter scda) throws Exception
 	{
 		ClassDef myClass = this.getClassDef(scda);

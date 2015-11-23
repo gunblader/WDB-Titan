@@ -67,7 +67,8 @@ public class WDB {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
+			System.out.println(e.getStackTrace());
 		} finally {
 			try {
 				db.closeDb();
@@ -133,11 +134,13 @@ public class WDB {
 						da.commit();
 					}
 				} catch (Exception e) {
-					System.out.println(e.toString() + ": " + e.getMessage());
+					e.printStackTrace();
+					System.out.println(e.toString() + ": " + e.getStackTrace());
 					da.abort();
 				}
 			} catch (Exception e) {
-				System.out.println(e.toString() + ": " + e.getMessage());
+				e.printStackTrace();
+				System.out.println(e.toString() + ": " + e.getStackTrace());
 			}
 		}
 
@@ -157,10 +160,11 @@ public class WDB {
 					}
 					da.commit();
 				} catch (Exception e) {
-					System.out.println(e.toString());
+					e.printStackTrace();
 					da.abort();
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				System.out.println(e.toString());
 			}
 		}
@@ -208,10 +212,12 @@ public class WDB {
 					}
 					da.commit();
 				} catch (Exception e) {
+					e.printStackTrace();
 					System.out.println(e.toString());
 					da.abort();
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				System.out.println(e.toString());
 			}
 		}
@@ -228,10 +234,12 @@ public class WDB {
 
 					da.commit();
 				} catch (Exception e) {
+					e.printStackTrace();
 					System.out.println(e.toString());
 					da.abort();
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				System.out.println(e.toString());
 			}
 		}
@@ -246,6 +254,7 @@ public class WDB {
 				try {
 					ClassDef targetClass = da.getClass(rq.className);
 					WDBObject[] targetClassObjs = targetClass.search(rq.expression, da);
+
 					int i, j;
 					String[][] table;
 					String[][] newtable;
@@ -288,10 +297,12 @@ public class WDB {
 						System.out.format("|%n");
 					}
 				} catch (Exception e) {
+					e.printStackTrace();
 					System.out.println(e.toString());
 					da.abort();
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				System.out.println(e.toString());
 			}
 			/*
