@@ -7,7 +7,6 @@
 package wdb.metadata;
 
 import wdb.DatabaseAdapter;
-import wdb.SleepyCatDataAdapter;
 import wdb.parser.*;
 
 import java.rmi.server.UID;
