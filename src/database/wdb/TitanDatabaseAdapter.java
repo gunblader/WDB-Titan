@@ -44,12 +44,15 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             classVertex.addEdge("instanceOf", instanceVertex);
         }
 
-        for(Attribute attr: classDef.attributes) {
+        for(int i = 0; i < classDef.attributes.size(); i++) {
+            Attribute attr = classDef.attributes.get(i);
+
             if(attr instanceof DVA) {
                 DVA dva = (DVA) attr;
                 logger.info("dva: " + dva.name + " " + dva.comment + " " + dva.required + " " + dva.type + " " + dva.size);
                 TitanVertex dvaVertex = tx.addVertex();
                 dvaVertex.property("vlabel", "DVA");
+                dvaVertex.property("index", i);
                 if(dva.name != null)
                     dvaVertex.property("name", dva.name);
                 if(dva.comment != null)
@@ -81,6 +84,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
                 logger.info("eva: " + eva.name + " " + eva.comment + " " + eva.required + " " + eva.baseClassName);
                 TitanVertex evaVertex = tx.addVertex();
                 evaVertex.property("vlabel", "EVA");
+                evaVertex.property("index", i);
                 if(eva.name != null)
                     evaVertex.property("name", eva.name);
                 if(eva.comment != null)
@@ -162,10 +166,13 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             Integer id = (Integer) instanceVertex.property("uid").value();
             classDef.instances.add(id);
         }
+
+        ArrayList<Integer> attrIndexes = new ArrayList<>();
         Iterator<Edge> evaIter = classVertex.edges(Direction.OUT, "evaOf");
         while (evaIter.hasNext()) {
             Vertex evaVertex = evaIter.next().inVertex();
             EVA eva = vertexToEVA(evaVertex);
+            attrIndexes.add((Integer) evaVertex.property("index").value());
             classDef.attributes.add(eva);
         }
         Iterator<Edge> dvaIter = classVertex.edges(Direction.OUT, "dvaOf");
@@ -177,6 +184,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             dva.required =  dvaVertex.property("required").isPresent() ? (Boolean) dvaVertex.property("required").value() : null;
             dva.type = dvaVertex.property("type").isPresent() ? (String) dvaVertex.property("type").value() : null;
             dva.size = dvaVertex.property("size").isPresent() ? (Integer) dvaVertex.property("size").value() : null;
+            attrIndexes.add((Integer) dvaVertex.property("index").value());
 
             if(dvaVertex.property("initValType").isPresent()) {
                 String initValType = (String) dvaVertex.property("initValType").value();
@@ -190,6 +198,17 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             }
             classDef.attributes.add(dva);
         }
+        Attribute[] attributes = new Attribute[classDef.attributes.size()];
+        for(int j = 0; j < attributes.length; j++) {
+            int correctIndex = attrIndexes.get(j);
+            Attribute attr = classDef.attributes.get(j);
+            attributes[correctIndex] = attr;
+        }
+        classDef.attributes.clear();
+        for(Attribute attr: attributes) {
+            classDef.attributes.add(attr);
+        }
+
 
         classDef.indexes = new ArrayList<>();
         Iterator<Edge> indexIter = classVertex.edges(Direction.OUT, "indexOf");
@@ -381,7 +400,6 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public ArrayList<WDBObject> getObjects(IndexDef index, String key) throws Exception {
-
         return null;
     }
 

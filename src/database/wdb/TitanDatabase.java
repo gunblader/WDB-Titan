@@ -10,22 +10,8 @@ import wdb.metadata.IndexDef;
 
 
 public class TitanDatabase implements DatabaseTool {
-    private String databasePath;
     public TitanGraph graph;
 
-    public void openSecDb(IndexDef index) throws Exception
-    {
-        /*
-        TitanManagement mgmt = this.graph.openManagement();
-        for(Object dva: index.getDvas()) {
-            String dvaName = (String) dva;
-            PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
-        }
-        TitanGraphIndex namei = mgmt.buildIndex("name", Vertex.class).addKey(name).unique().buildCompositeIndex();
-        mgmt.setConsistency(namei, ConsistencyModifier.LOCK);
-        */
-
-    }
 
     public void openDb(String databasePath) throws Exception
     {
@@ -39,12 +25,6 @@ public class TitanDatabase implements DatabaseTool {
     private void createSchema() throws Exception
     {
         TitanManagement mgmt = this.graph.openManagement();
-
-        /*
-        PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
-        TitanGraphIndex namei = mgmt.buildIndex("name", Vertex.class).addKey(name).unique().buildCompositeIndex();
-        mgmt.setConsistency(namei, ConsistencyModifier.LOCK);
-        */
 
         mgmt.makePropertyKey("comment").dataType(String.class).make();
         mgmt.makePropertyKey("required").dataType(Boolean.class).make();
@@ -82,5 +62,19 @@ public class TitanDatabase implements DatabaseTool {
     public DatabaseAdapter newTransaction() throws Exception
     {
         return new TitanDatabaseAdapter(graph.newTransaction());
+    }
+
+    public void openSecDb(IndexDef index) throws Exception
+    {
+        /*
+        TitanManagement mgmt = this.graph.openManagement();
+        for(Object dva: index.getDvas()) {
+            String dvaName = (String) dva;
+            PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
+        }
+        TitanGraphIndex namei = mgmt.buildIndex("name", Vertex.class).addKey(name).unique().buildCompositeIndex();
+        mgmt.setConsistency(namei, ConsistencyModifier.LOCK);
+        */
+
     }
 }

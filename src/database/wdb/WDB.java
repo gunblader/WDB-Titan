@@ -40,9 +40,6 @@ public class WDB {
 				db.openDb(dbDir.toString());
 			}
 
-			System.out.println("WDB Simantic Database Project");
-			System.out.println("Copyright 2006 University of Texas at Austin");
-
 			WDB.in = new BufferedReader(new InputStreamReader(System.in));
 			WDB.parser = new QueryParser(WDB.in);
 			Query q;
@@ -141,12 +138,10 @@ public class WDB {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println(e.toString() + ": " + e.getStackTrace());
 					da.abort();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out.println(e.toString() + ": " + e.getStackTrace());
 			}
 		}
 
@@ -170,7 +165,6 @@ public class WDB {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out.println(e.toString());
 			}
 		}
 
@@ -218,12 +212,10 @@ public class WDB {
 					da.commit();
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println(e.toString());
 					da.abort();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out.println(e.toString());
 			}
 		}
 		if (q.getClass() == IndexDef.class) {
@@ -240,12 +232,10 @@ public class WDB {
 					da.commit();
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println(e.toString());
 					da.abort();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out.println(e.toString());
 			}
 		}
 		if (q.getClass() == RetrieveQuery.class) {
