@@ -148,7 +148,6 @@ public class WDB {
 			ModifyQuery mq = (ModifyQuery) q;
 			try {
 				DatabaseAdapter da = db.newTransaction();
-
 				try {
 					ClassDef targetClass = da.getClass(mq.className);
 					WDBObject[] targetClassObjs = targetClass.search(mq.expression, da);

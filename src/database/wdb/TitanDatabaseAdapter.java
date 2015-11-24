@@ -31,13 +31,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
     @Override
     public void putClass(ClassDef classDef) throws Exception {
         deleteIfExists(tx.query().has("vlabel", "ClassDef").has("name", classDef.name));
-
         logger.info("putting class: ");
-        logger.info(classDef.name);
-        logger.info(classDef.comment);
-        logger.info(classDef.instances.toString());
-        logger.info(classDef.attributes.toString());
-        logger.info(classDef.indexes.toString());
 
         TitanVertex classVertex = tx.addVertex();
         classVertex.property("vlabel", "ClassDef");
@@ -238,6 +232,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
                 childVertex.property("uid", childObject); // value
             objectVertex.addEdge("child", childVertex);
         }
+
         for(Map.Entry<String, Object> evaObject: wdbObject.evaObjects.entrySet()) {
             final String id = evaObject.getKey();
             final EVA eva = (EVA) evaObject.getValue();

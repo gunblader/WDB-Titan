@@ -284,7 +284,6 @@ public class WDBObject implements Serializable {
 		//value can't be found and I'm not a subclass. It doesn't exist in this heirarchy
 		else
 		{
-			System.out.println("setchedld");
 			throw new NoSuchFieldException("Attribute \"" + dvaName + "\" is not a valid DVA");
 		}
 

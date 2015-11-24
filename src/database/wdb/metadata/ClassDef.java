@@ -170,7 +170,7 @@ public class ClassDef extends Query implements Serializable {
 			for(int i = 0; i < this.instances.size(); i++)
 			{
 				object = this.getInstance(i, scda);
-				if( !hasWhereClause 
+				if( !hasWhereClause
                     || (hasWhereClause && expression.eval(scda, object)) )
 				{
 					matchesList.add(object);
@@ -189,7 +189,6 @@ public class ClassDef extends Query implements Serializable {
 				}
 			}
 		}
-
 		return (WDBObject[])matchesList.toArray(matchesArray);
 	}
 	public void padAttribute(PrintNode row, AttributePath attributePath, DatabaseAdapter scda) throws Exception

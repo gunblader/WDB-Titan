@@ -2,13 +2,30 @@
 
 package wdb.parser;
 
-public class Root extends SimpleNode {
-  public Root(int id) {
-    super(id);
-  }
+import wdb.DatabaseAdapter;
+import wdb.metadata.IndexSelectResult;
+import wdb.metadata.WDBObject;
 
-  public Root(QueryParser p, int id) {
-    super(p, id);
-  }
+import java.util.ArrayList;
+
+
+public class Root extends wdb.parser.SimpleNode {
+    public Root(int id) {
+        super(id);
+    }
+
+    public Root(wdb.parser.QueryParser p, int id) {
+        super(p, id);
+    }
+    public IndexSelectResult filterObjectsWithIndexes(DatabaseAdapter da, ArrayList indexes) throws Exception
+    {
+        wdb.parser.SimpleNode n = (wdb.parser.SimpleNode)children[0];
+        return n.filterObjectsWithIndexes(da, indexes);
+    }
+    public boolean eval(DatabaseAdapter da, WDBObject wdbO) throws Exception
+    {
+        wdb.parser.SimpleNode n = (wdb.parser.SimpleNode)children[0];
+        return n.eval(da, wdbO);
+    }
 
 }
