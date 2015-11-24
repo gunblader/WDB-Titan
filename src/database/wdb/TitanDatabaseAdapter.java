@@ -54,7 +54,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             if(attr instanceof DVA) {
                 DVA dva = (DVA) attr;
                 logger.info("dva: " + dva.name + " " + dva.comment + " " + dva.required + " " + dva.type + " " + dva.size);
-                TitanVertex dvaVertex = tx.addVertex("DVA"); // ?
+                TitanVertex dvaVertex = tx.addVertex();
                 dvaVertex.property("vlabel", "DVA");
                 if(dva.name != null)
                     dvaVertex.property("name", dva.name);

@@ -233,7 +233,6 @@ public class WDBObject implements Serializable {
 		//See if its immediate in this class
 		ClassDef myClass = this.getClassDef(scda);
 
-		System.out.println("hc: " + myClass.getClass().toString()	);
 		Attribute myAttribute = myClass.getAttribute(dvaName);
 		if(myAttribute != null && myAttribute.getClass() == DVA.class)
 		{
