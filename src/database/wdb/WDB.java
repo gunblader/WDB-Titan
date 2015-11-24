@@ -31,8 +31,14 @@ public class WDB {
 		}
 
 		try {
-			db = new TitanDatabase(dbDir.toString());
-			db.openDb();
+			if(args.length > 0 && "sleepycat".equals(args[0])) {
+				db = new SleepyCatDataBase(dbDir.toString());
+				db.openDb("test");
+			}
+			else {
+				db = new TitanDatabase();
+				db.openDb(dbDir.toString());
+			}
 
 			System.out.println("WDB Simantic Database Project");
 			System.out.println("Copyright 2006 University of Texas at Austin");

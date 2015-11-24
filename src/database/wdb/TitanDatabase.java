@@ -13,17 +13,21 @@ public class TitanDatabase implements DatabaseTool {
     private String databasePath;
     public TitanGraph graph;
 
-
-    public TitanDatabase(String databasePath) throws Exception
-    {
-        this.databasePath = databasePath;
-    }
-
     public void openSecDb(IndexDef index) throws Exception
     {
+        /*
+        TitanManagement mgmt = this.graph.openManagement();
+        for(Object dva: index.getDvas()) {
+            String dvaName = (String) dva;
+            PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
+        }
+        TitanGraphIndex namei = mgmt.buildIndex("name", Vertex.class).addKey(name).unique().buildCompositeIndex();
+        mgmt.setConsistency(namei, ConsistencyModifier.LOCK);
+        */
+
     }
 
-    public void openDb() throws Exception
+    public void openDb(String databasePath) throws Exception
     {
         this.graph = TitanFactory.build().
                 set("storage.backend", "berkeleyje").
