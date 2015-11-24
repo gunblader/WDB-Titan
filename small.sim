@@ -1,0 +1,15 @@
+
+// Class Definitions
+CLASS SIM_Person ( PERSON_ID :INTEGER, REQUIRED ; FIRST_NAME : STRING ; projs:SIM_project, INVERSE IS peops;); 
+CLASS SIM_project ( PROJECT_ID :INTEGER, REQUIRED ; NAME :STRING ; peops:SIM_Person, INVERSE IS projs; ); 
+
+INSERT SIM_Person( PERSON_ID := 11 , FIRST_NAME := "Brian" );
+INSERT SIM_project (PROJECT_ID := 1, NAME := "Summer Recruiting Drive");
+
+MODIFY LIMIT = ALL SIM_project (peops := SIM_Person WITH (PERSON_ID = 11)) WHERE PROJECT_ID = 1; 
+
+from SIM_person retrieve *;
+from SIM_project retrieve *, FIRST_NAME of peops;
+
+
+
