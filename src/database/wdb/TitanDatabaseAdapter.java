@@ -247,10 +247,21 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
 
         for(Map.Entry<String, Object> evaObject: wdbObject.evaObjects.entrySet()) {
             final String id = evaObject.getKey();
-            final String classObjectId = (String) evaObject.getValue();
+            Object evaObj = evaObject.getValue();
             TitanVertex evaVertex = tx.addVertex();
             evaVertex.property("id", id); // key
-            evaVertex.property("classObjectId", classObjectId); // key
+            if(evaObj instanceof ArrayList) {
+                final ArrayList<String> evas = (ArrayList<String>) evaObj;
+                for(String eva: evas) {
+                    TitanVertex evaValVertex = tx.addVertex();
+                    evaValVertex.property("val", eva);
+                    evaVertex.addEdge("evaVal", evaValVertex);
+                }
+            }
+            else {
+                evaVertex.property("singlevalued", "true");
+                evaVertex.property("val", (String) evaObj);
+            }
             objectVertex.addEdge("evaStrOf", evaVertex);
         }
 
@@ -314,8 +325,20 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
         while (evaIter.hasNext()) {
             Vertex evaVertex = evaIter.next().inVertex();
             String id = (String) evaVertex.property("id").value(); // key
-            String classObjectId = (String) evaVertex.property("classObjectId").value(); // key
-            wdbObject.evaObjects.put(id, classObjectId);
+            if(evaVertex.property("singlevalued").isPresent())  {
+                String val = (String) evaVertex.property("val").value();
+                wdbObject.evaObjects.put(id, val);
+            }
+            else {
+                Iterator<Edge> evaValIter = evaVertex.edges(Direction.OUT, "evaVal");
+                ArrayList<String> evaVals = new ArrayList<>();
+                while (evaValIter.hasNext()) {
+                    Vertex evaVal = evaValIter.next().inVertex();
+                    String val = (String) evaVal.property("val").value();
+                    evaVals.add(val);
+                }
+                wdbObject.evaObjects.put(id, evaVals);
+            }
         }
 
         wdbObject.dvaValues = new Hashtable<>();

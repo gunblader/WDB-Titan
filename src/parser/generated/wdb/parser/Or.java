@@ -2,6 +2,13 @@
 
 package wdb.parser;
 
+
+import wdb.DatabaseAdapter;
+import wdb.metadata.IndexSelectResult;
+import wdb.metadata.WDBObject;
+
+import java.util.ArrayList;
+
 public class Or extends SimpleNode {
   public Or(int id) {
     super(id);
@@ -9,6 +16,22 @@ public class Or extends SimpleNode {
 
   public Or(QueryParser p, int id) {
     super(p, id);
+  }
+  public IndexSelectResult filterObjectsWithIndexes(DatabaseAdapter da, ArrayList indexes) throws Exception
+  {
+    SimpleNode n1 = (SimpleNode)children[0];
+    SimpleNode n2 = (SimpleNode)children[1];
+    IndexSelectResult leftResult = n1.filterObjectsWithIndexes(da, indexes);
+    leftResult.doDelayedAnd(da, indexes);
+    IndexSelectResult rightResult = n2.filterObjectsWithIndexes(da, indexes);
+    rightResult.doDelayedAnd(da, indexes);
+    return leftResult.or(leftResult);
+  }
+  public boolean eval(DatabaseAdapter da, WDBObject wdbO) throws Exception
+  {
+    SimpleNode n1 = (SimpleNode)children[0];
+    SimpleNode n2 = (SimpleNode)children[1];
+    return n1.eval(da, wdbO) || n2.eval(da, wdbO);
   }
 
 }

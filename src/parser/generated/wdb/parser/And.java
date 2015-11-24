@@ -2,6 +2,12 @@
 
 package wdb.parser;
 
+import java.util.ArrayList;
+
+import wdb.DatabaseAdapter;
+import wdb.metadata.IndexSelectResult;
+import wdb.metadata.WDBObject;
+
 public class And extends SimpleNode {
   public And(int id) {
     super(id);
@@ -9,6 +15,20 @@ public class And extends SimpleNode {
 
   public And(QueryParser p, int id) {
     super(p, id);
+  }
+  public IndexSelectResult filterObjectsWithIndexes(DatabaseAdapter da, ArrayList indexes) throws Exception
+  {
+	  SimpleNode n1 = (SimpleNode)children[0];
+	  SimpleNode n2 = (SimpleNode)children[1];
+	  IndexSelectResult leftResult = n1.filterObjectsWithIndexes(da, indexes);
+	  IndexSelectResult rightResult = n2.filterObjectsWithIndexes(da, indexes);
+	  return leftResult.and(leftResult);
+  }
+  public boolean eval(DatabaseAdapter da, WDBObject wdbO) throws Exception
+  {
+  	SimpleNode n1 = (SimpleNode)children[0];
+  	SimpleNode n2 = (SimpleNode)children[1];
+  	return n1.eval(da, wdbO) && n2.eval(da, wdbO);
   }
 
 }
