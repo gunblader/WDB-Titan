@@ -21,7 +21,6 @@ public class TitanDatabase implements DatabaseTool {
 
     public void openSecDb(IndexDef index) throws Exception
     {
-        //open indexed graph
     }
 
     public void openDb() throws Exception

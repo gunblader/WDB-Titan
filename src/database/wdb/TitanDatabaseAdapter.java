@@ -107,6 +107,12 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             indexVertex.property("comment", index.comment);
             indexVertex.property("className", index.className);
             indexVertex.property("unique", index.unique);
+            for(Object dva: index.getDvas()) {
+                String dvaName = (String) dva;
+                TitanVertex dvaNameVertex = tx.addVertex();
+                dvaNameVertex.property("name", dvaName);
+                indexVertex.addEdge("dvaNameOf", dvaNameVertex);
+            }
             classVertex.addEdge("indexOf", classVertex);
         }
 
@@ -194,6 +200,12 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             indexDef.comment = (String) indexVertex.property("comment").value();
             indexDef.className = (String) indexVertex.property("className").value();
             indexDef.unique = (Boolean) indexVertex.property("unique").value();
+
+            Iterator<Edge> dvaNameIter = classVertex.edges(Direction.OUT, "dvaNameOf");
+            while(dvaNameIter.hasNext()) {
+                Vertex dvaNameVertex = dvaNameIter.next().inVertex();
+                indexDef.addDva((String) dvaNameVertex.property("name").value());
+            }
             classDef.indexes.add(indexDef);
         }
         return classDef;
@@ -346,6 +358,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public ArrayList<WDBObject> getObjects(IndexDef index, String key) throws Exception {
+
         return null;
     }
 
