@@ -2,13 +2,17 @@
 package wdb;
 
 import com.thinkaurelius.titan.core.*;
+import com.thinkaurelius.titan.core.schema.ConsistencyModifier;
+import com.thinkaurelius.titan.core.schema.TitanGraphIndex;
 import com.thinkaurelius.titan.core.schema.TitanManagement;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import wdb.metadata.IndexDef;
 
 
 public class TitanDatabase implements DatabaseTool {
     private String databasePath;
-    private TitanGraph graph;
+    public TitanGraph graph;
+
 
     public TitanDatabase(String databasePath) throws Exception
     {
@@ -33,7 +37,12 @@ public class TitanDatabase implements DatabaseTool {
     {
         TitanManagement mgmt = this.graph.openManagement();
 
-        mgmt.makePropertyKey("name").dataType(String.class).make();
+        /*
+        PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
+        TitanGraphIndex namei = mgmt.buildIndex("name", Vertex.class).addKey(name).unique().buildCompositeIndex();
+        mgmt.setConsistency(namei, ConsistencyModifier.LOCK);
+        */
+
         mgmt.makePropertyKey("comment").dataType(String.class).make();
         mgmt.makePropertyKey("required").dataType(Boolean.class).make();
         mgmt.makePropertyKey("unique").dataType(Boolean.class).make();
@@ -48,10 +57,8 @@ public class TitanDatabase implements DatabaseTool {
         mgmt.makePropertyKey("uid").dataType(Integer.class).make();
 
         mgmt.makePropertyKey("id").dataType(String.class).make();
-        mgmt.makeVertexLabel("Superclass").make();
         mgmt.makeEdgeLabel("superclassOf").multiplicity(Multiplicity.MULTI).make();
 
-        mgmt.makeVertexLabel("Instance").make();
         mgmt.makeEdgeLabel("instanceOf").multiplicity(Multiplicity.MULTI).make();
 
         mgmt.makeEdgeLabel("attributeOf").multiplicity(Multiplicity.MULTI).make();
@@ -62,13 +69,6 @@ public class TitanDatabase implements DatabaseTool {
         mgmt.makeEdgeLabel("evaOf").multiplicity(Multiplicity.MULTI).make();
         mgmt.makeEdgeLabel("dvaOf").multiplicity(Multiplicity.MULTI).make();
 
-        mgmt.makeVertexLabel("Attribute").make();
-        mgmt.makeVertexLabel("Parent").make();
-        mgmt.makeVertexLabel("Child").make();
-        mgmt.makeVertexLabel("WDBObject").make();
-        mgmt.makeVertexLabel("DVA").make();
-        mgmt.makeVertexLabel("EVA").make();
-
         mgmt.commit();
     }
     public void closeDb() throws Exception
@@ -78,7 +78,6 @@ public class TitanDatabase implements DatabaseTool {
 
     public DatabaseAdapter newTransaction() throws Exception
     {
-        TitanTransaction tx = graph.newTransaction();
-        return new TitanDatabaseAdapter(this, tx);
+        return new TitanDatabaseAdapter(graph.newTransaction());
     }
 }

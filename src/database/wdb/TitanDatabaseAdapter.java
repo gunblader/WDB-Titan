@@ -1,10 +1,8 @@
 package wdb;
 
-import com.thinkaurelius.titan.core.TitanTransaction;
-import com.thinkaurelius.titan.core.TitanVertex;
+import com.thinkaurelius.titan.core.*;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
-import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import wdb.metadata.*;
 import org.slf4j.Logger;
@@ -15,10 +13,8 @@ import java.util.*;
 public class TitanDatabaseAdapter implements DatabaseAdapter {
     Logger logger = LoggerFactory.getLogger(TitanDatabaseAdapter.class);
     private TitanTransaction tx;
-    private TitanDatabase db;
 
-    public TitanDatabaseAdapter(TitanDatabase database, TitanTransaction transaction) {
-        this.db = database;
+    public TitanDatabaseAdapter(TitanTransaction transaction) {
         this.tx = transaction;
     }
 
@@ -34,6 +30,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public void putClass(ClassDef classDef) throws Exception {
+        deleteIfExists(tx.query().has("vlabel", "ClassDef").has("name", classDef.name));
 
         logger.info("putting class: ");
         logger.info(classDef.name);
@@ -42,13 +39,13 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
         logger.info(classDef.attributes.toString());
         logger.info(classDef.indexes.toString());
 
-        TitanVertex classVertex = tx.addVertex("ClassDef");
+        TitanVertex classVertex = tx.addVertex();
         classVertex.property("vlabel", "ClassDef");
         classVertex.property("name", classDef.name);
         classVertex.property("comment", classDef.comment);
 
         for(Integer instanceId: classDef.instances) {
-            TitanVertex instanceVertex = tx.addVertex("Instance");
+            TitanVertex instanceVertex = tx.addVertex();
             instanceVertex.property("uid", instanceId);
             classVertex.addEdge("instanceOf", instanceVertex);
         }
@@ -79,7 +76,6 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
                         dvaVertex.property("initValBoolean", (Boolean) dva.initialValue);
                     }
                     if (dva.initialValue instanceof String) {
-                        System.out.println("init val: " + dva.initialValue);
                         dvaVertex.property("initValType", "Integer");
                         dvaVertex.property("initValInteger", (Integer) dva.initialValue);
                     }
@@ -89,7 +85,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             else { // eva
                 EVA eva = (EVA) attr;
                 logger.info("eva: " + eva.name + " " + eva.comment + " " + eva.required + " " + eva.baseClassName);
-                TitanVertex evaVertex = tx.addVertex("EVA");
+                TitanVertex evaVertex = tx.addVertex();
                 evaVertex.property("vlabel", "EVA");
                 if(eva.name != null)
                     evaVertex.property("name", eva.name);
@@ -112,7 +108,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
         }
 
         for(IndexDef index: classDef.indexes) {
-            TitanVertex indexVertex = tx.addVertex("IndexDef");
+            TitanVertex indexVertex = tx.addVertex();
             indexVertex.property("name", index.name);
             indexVertex.property("comment", index.comment);
             indexVertex.property("className", index.className);
@@ -124,7 +120,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             SubclassDef subclassDef = (SubclassDef) classDef;
             logger.info("superclasses: " + subclassDef.superClasses.toString());
             for(String superclassId: subclassDef.superClasses) {
-                TitanVertex superclassVertex = tx.addVertex("Superclass");
+                TitanVertex superclassVertex = tx.addVertex();
                 superclassVertex.property("id", superclassId);
                 classVertex.addEdge("superclassOf", superclassVertex);
             }
@@ -134,11 +130,13 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
     @Override
     public ClassDef getClass(String className) throws Exception {
         Iterator<TitanVertex> vertices = tx.query().has("vlabel", "ClassDef").has("name", className).vertices().iterator();
+
         if(!vertices.hasNext()) {
             throw new ClassNotFoundException("Class \"" + className + "\" is not defined");
         }
         TitanVertex classVertex = vertices.next();
-        if(!vertices.hasNext()) {
+
+        if(vertices.hasNext()) {
             TitanVertex nextClassVertex = vertices.next();
             logger.info("there are duplicate versions of class " + className + ": " + classVertex + " " + nextClassVertex);
         }
@@ -164,14 +162,12 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             Integer id = (Integer) instanceVertex.property("uid").value();
             classDef.instances.add(id);
         }
-
         Iterator<Edge> evaIter = classVertex.edges(Direction.OUT, "evaOf");
         while (evaIter.hasNext()) {
             Vertex evaVertex = evaIter.next().inVertex();
             EVA eva = vertexToEVA(evaVertex);
             classDef.attributes.add(eva);
         }
-
         Iterator<Edge> dvaIter = classVertex.edges(Direction.OUT, "dvaOf");
         while (dvaIter.hasNext()) {
             Vertex dvaVertex = dvaIter.next().inVertex();
@@ -182,13 +178,13 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             dva.type = dvaVertex.property("type").isPresent() ? (String) dvaVertex.property("type").value() : null;
             dva.size = dvaVertex.property("size").isPresent() ? (Integer) dvaVertex.property("size").value() : null;
 
-            if(dvaVertex.property("initValueType").isPresent()) {
-                String initValueType = (String) dvaVertex.property("initValueType").value();
-                if ("String".equals(initValueType)) {
+            if(dvaVertex.property("initValType").isPresent()) {
+                String initValType = (String) dvaVertex.property("initValType").value();
+                if ("String".equals(initValType)) {
                     dva.initialValue = dvaVertex.property("initValString").value();
-                } else if ("Boolean".equals(initValueType)) {
+                } else if ("Boolean".equals(initValType)) {
                     dva.initialValue = dvaVertex.property("initValBoolean").value();
-                } else if ("Integer".equals(initValueType)) {
+                } else if ("Integer".equals(initValType)) {
                     dva.initialValue = dvaVertex.property("initValInteger").value();
                 }
             }
@@ -212,8 +208,12 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
     @Override
     public void putObject(WDBObject wdbObject) throws Exception {
 
+        deleteIfExists(tx.query().has("vlabel", "WDBObject")
+                        .has("classDefName", wdbObject.classDefName)
+                        .has("uid", wdbObject.getUid()));
+
         logger.info("putting object: ");
-        TitanVertex objectVertex = tx.addVertex("WDBObject");
+        TitanVertex objectVertex = tx.addVertex();
         objectVertex.property("vlabel", "WDBObject");
         if(wdbObject.getClassName() != null)
             objectVertex.property("classDefName", wdbObject.getClassName());
@@ -223,7 +223,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
         for(Map.Entry<String, Integer> parent: wdbObject.parents.entrySet()) {
             final String parentClass = parent.getKey();
             final Integer parentObject = parent.getValue();
-            TitanVertex parentVertex = tx.addVertex("Parent");
+            TitanVertex parentVertex = tx.addVertex();
             parentVertex.property("classDefName", parentClass); // key
             if(parentObject != null)
                 parentVertex.property("uid", parentObject); // val
@@ -232,7 +232,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
         for(Map.Entry<String, Integer> child: wdbObject.children.entrySet()) {
             final String childClass = child.getKey();
             final Integer childObject = child.getValue();
-            TitanVertex childVertex = tx.addVertex("Child");
+            TitanVertex childVertex = tx.addVertex();
             childVertex.property("classDefName", childClass); // key
             if(childObject != null)
                 childVertex.property("uid", childObject); // value
@@ -241,7 +241,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
         for(Map.Entry<String, Object> evaObject: wdbObject.evaObjects.entrySet()) {
             final String id = evaObject.getKey();
             final EVA eva = (EVA) evaObject.getValue();
-            TitanVertex evaVertex = tx.addVertex("EVA");
+            TitanVertex evaVertex = tx.addVertex();
             evaVertex.property("id", id); // key
             if(eva.name != null)
                 evaVertex.property("name", eva.name);
@@ -265,7 +265,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
         for(Map.Entry<String, Object> dvaValue: wdbObject.dvaValues.entrySet()) {
             final String id = dvaValue.getKey();
             final Object dvaVal = dvaValue.getValue();
-            TitanVertex dvaVertex = tx.addVertex("DVA");
+            TitanVertex dvaVertex = tx.addVertex();
             dvaVertex.property("id", id); // key
 
             if(dvaVal != null) {
@@ -301,7 +301,6 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
         WDBObject wdbObject = new WDBObject();
         wdbObject.classDefName = className;
         wdbObject.Uid = uid;
-        System.out.println("charby");
         wdbObject.parents = new Hashtable<>();
         Iterator<Edge> parentsIter = objectVertex.edges(Direction.OUT, "parent");
         while (parentsIter.hasNext()) {
@@ -325,7 +324,6 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             String id = (String) evaVertex.property("id").value(); // key
             wdbObject.evaObjects.put(id, vertexToEVA(evaVertex));
         }
-        System.out.println("charbyd");
 
         wdbObject.dvaValues = new Hashtable<>();
         Iterator<Edge> dvaIter = objectVertex.edges(Direction.OUT, "dvaOf");
@@ -333,8 +331,8 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             Vertex dvaVertex = dvaIter.next().inVertex();
             String id = (String) dvaVertex.property("id").value(); // key
             Object dva = null;
-            if(dvaVertex.property("initValueType").isPresent()) {
-                String initValueType = (String) dvaVertex.property("initValueType").value();
+            if(dvaVertex.property("initValType").isPresent()) {
+                String initValueType = (String) dvaVertex.property("initValType").value();
                 if ("String".equals(initValueType)) {
                     dva = dvaVertex.property("initValString").value();
                 } else if ("Boolean".equals(initValueType)) {
@@ -343,9 +341,8 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
                     dva = dvaVertex.property("initValInteger").value();
                 }
             }
-            wdbObject.evaObjects.put(id, dva);
+            wdbObject.dvaValues.put(id, dva);
         }
-        System.out.println("charbydddr");
         return wdbObject;
     }
 
@@ -369,5 +366,25 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
     @Override
     public ArrayList<WDBObject> getObjects(IndexDef index, String key) throws Exception {
         return null;
+    }
+
+    private void delete(Vertex vertex) {
+        Iterator<Edge> edges = vertex.edges(Direction.OUT);
+        while(edges.hasNext()) {
+            Edge edge = edges.next();
+            Vertex inVertex = edge.inVertex();
+            edge.remove();
+            if(!inVertex.edges(Direction.IN).hasNext()) {
+                delete(inVertex);
+            }
+        }
+        vertex.remove();
+    }
+
+    private void deleteIfExists(TitanGraphQuery query) {
+        Iterator<TitanVertex> vertices = query.vertices().iterator();
+        while(vertices.hasNext()) {
+            delete(vertices.next());
+        }
     }
 }
