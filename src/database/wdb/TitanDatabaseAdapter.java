@@ -235,26 +235,11 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
 
         for(Map.Entry<String, Object> evaObject: wdbObject.evaObjects.entrySet()) {
             final String id = evaObject.getKey();
-            final EVA eva = (EVA) evaObject.getValue();
+            final String classObjectId = (String) evaObject.getValue();
             TitanVertex evaVertex = tx.addVertex();
             evaVertex.property("id", id); // key
-            if(eva.name != null)
-                evaVertex.property("name", eva.name);
-            if(eva.comment != null)
-                evaVertex.property("comment", eva.comment);
-            if(eva.required != null)
-                evaVertex.property("required", eva.required);
-            if(eva.baseClassName != null)
-                evaVertex.property("baseClassName", eva.baseClassName);
-            if(eva.inverseEVA != null)
-                evaVertex.property("inverseEVA", eva.inverseEVA);
-            if(eva.cardinality != null)
-                evaVertex.property("cardinality", eva.cardinality);
-            if(eva.distinct != null)
-                evaVertex.property("distinct", eva.distinct);
-            if(eva.max != null)
-                evaVertex.property("max", eva.max);
-            objectVertex.addEdge("evaOf", evaVertex);
+            evaVertex.property("classObjectId", classObjectId); // key
+            objectVertex.addEdge("evaStrOf", evaVertex);
         }
 
         for(Map.Entry<String, Object> dvaValue: wdbObject.dvaValues.entrySet()) {
@@ -277,7 +262,7 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
                     dvaVertex.property("initValInteger", (Integer) dvaVal);
                 }
             }
-            objectVertex.addEdge("dvaOf", dvaVertex);
+            objectVertex.addEdge("dvaStrOf", dvaVertex);
         }
     }
 
@@ -313,15 +298,16 @@ public class TitanDatabaseAdapter implements DatabaseAdapter {
             wdbObject.parents.put(childClass, childObject);
         }
         wdbObject.evaObjects = new Hashtable<>();
-        Iterator<Edge> evaIter = objectVertex.edges(Direction.OUT, "evaOf");
+        Iterator<Edge> evaIter = objectVertex.edges(Direction.OUT, "evaStrOf");
         while (evaIter.hasNext()) {
             Vertex evaVertex = evaIter.next().inVertex();
             String id = (String) evaVertex.property("id").value(); // key
-            wdbObject.evaObjects.put(id, vertexToEVA(evaVertex));
+            String classObjectId = (String) evaVertex.property("classObjectId").value(); // key
+            wdbObject.evaObjects.put(id, classObjectId);
         }
 
         wdbObject.dvaValues = new Hashtable<>();
-        Iterator<Edge> dvaIter = objectVertex.edges(Direction.OUT, "dvaOf");
+        Iterator<Edge> dvaIter = objectVertex.edges(Direction.OUT, "dvaStrOf");
         while (dvaIter.hasNext()) {
             Vertex dvaVertex = dvaIter.next().inVertex();
             String id = (String) dvaVertex.property("id").value(); // key
